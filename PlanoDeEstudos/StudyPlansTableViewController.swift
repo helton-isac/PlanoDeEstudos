@@ -5,7 +5,8 @@ class StudyPlansTableViewController: UITableViewController {
     // MARK: - Properties
     let dateFormatter: DateFormatter = {
         let df = DateFormatter()
-        df.dateStyle = .short
+        df.locale = Locale(identifier: "pt_BR")
+        df.dateStyle = .full
         return df
     }()
     let sm = StudyManager.shared
@@ -13,10 +14,19 @@ class StudyPlansTableViewController: UITableViewController {
     // MARK: - Super Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(onConfirmed), name: NSNotification.Name("Confirmed"), object: nil)
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+    
+    // MARK: - Methods
+    @objc
+    private func onConfirmed(notification: Notification) {
+        guard let id = notification.userInfo?["id"] as? String else { return }
+        sm.setPlanDone(id: id)
         tableView.reloadData()
     }
     
