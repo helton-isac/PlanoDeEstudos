@@ -29,6 +29,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
         
+        application.registerForRemoteNotifications()
+        
         let confirmAction = UNNotificationAction(identifier: ActionIdentifier.confirm, title: "Já estudei 👍", options: [.foreground])
         let cancelAction = UNNotificationAction(identifier: ActionIdentifier.cancel, title: "Cancelar", options: [])
         let category = UNNotificationCategory(identifier: "Lembrete", actions: [confirmAction, cancelAction], intentIdentifiers: [], hiddenPreviewsBodyPlaceholder: "", options: [.customDismissAction])
@@ -38,6 +40,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return true
     }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let token = deviceToken.reduce(""){$0 + String(format: "%02x", $1) }
+        print(token)
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print(error)
+    }
+    
 }
 
 
@@ -63,8 +75,14 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             
         case ActionIdentifier.cancel:
             print("usuário tocou no botão Cancel")
+            
         case UNNotificationDefaultActionIdentifier:
             print("usuário tocou na notificação em si")
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "Orange")
+            window?.rootViewController?.present(vc, animated: true, completion: nil)
+            
         case UNNotificationDismissActionIdentifier:
             print("usuário dismissou a notificação")
         default:
